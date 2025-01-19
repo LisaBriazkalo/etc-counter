@@ -27,12 +27,12 @@ jobs:
           mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
           mkdir -p ~/rpmbuild/SOURCES/etc_files
 
-          # Copy files from /etc for RPM
-          find /etc -type f -exec cp --parents {} ~/rpmbuild/SOURCES/etc_files/ \;
+          # Copy readable files from /etc for RPM
+          find /etc -type f -readable -exec cp --parents {} ~/rpmbuild/SOURCES/etc_files/ \;
 
           # Create directories for DEB
           mkdir -p ~/deb-package/etc
-          find /etc -type f -exec cp --parents {} ~/deb-package/ \;
+          find /etc -type f -readable -exec cp --parents {} ~/deb-package/ \;
 
           # Create DEBIAN control file
           mkdir -p ~/deb-package/DEBIAN
@@ -44,7 +44,7 @@ jobs:
           Architecture: all
           Maintainer: Your Name <your.email@example.com>
           Description: Package containing all files (not directories) from /etc
-           This package contains all files from /etc, excluding directories.
+           This package contains all readable files from /etc, excluding directories.
           EOF
 
       - name: Build RPM
@@ -62,7 +62,7 @@ jobs:
           BuildRoot: %{_topdir}/BUILD/%{name}-%{version}
 
           %description
-          This package contains all files (not directories) from /etc.
+          This package contains all readable files (not directories) from /etc.
 
           %prep
 
