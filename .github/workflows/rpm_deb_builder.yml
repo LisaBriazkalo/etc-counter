@@ -23,16 +23,18 @@ jobs:
 
       - name: Prepare package structure
         run: |
+          set -e
+
           # Create directories for RPM
           mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
           mkdir -p ~/rpmbuild/SOURCES/etc_files
 
           # Copy readable files from /etc for RPM, ignoring access errors
-          find /etc -type f -readable -exec cp --parents {} ~/rpmbuild/SOURCES/etc_files/ \; 2>/dev/null
+          find /etc -type f -readable -exec cp --parents {} ~/rpmbuild/SOURCES/etc_files/ \; 2>/dev/null || true
 
           # Create directories for DEB
           mkdir -p ~/deb-package/etc
-          find /etc -type f -readable -exec cp --parents {} ~/deb-package/ \; 2>/dev/null
+          find /etc -type f -readable -exec cp --parents {} ~/deb-package/ \; 2>/dev/null || true
 
           # Create DEBIAN control file
           mkdir -p ~/deb-package/DEBIAN
@@ -49,6 +51,8 @@ jobs:
 
       - name: Build RPM
         run: |
+          set -e
+
           # Create RPM spec file
           cat <<EOF > ~/rpmbuild/SPECS/etc_files.spec
           Name: etc-files
@@ -81,6 +85,7 @@ jobs:
 
       - name: Build DEB
         run: |
+          set -e
           dpkg-deb --build ~/deb-package
 
       - name: Upload artifacts
