@@ -1,0 +1,92 @@
+name: Build RPM and DEB Packages
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Set up environment
+        run: |
+          sudo apt update
+          sudo apt install -y rpm dpkg-dev
+
+      - name: Prepare package structure
+        run: |
+          # Create directories for RPM
+          mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+          mkdir -p ~/rpmbuild/SOURCES/etc_files
+
+          # Copy files from /etc for RPM
+          find /etc -type f -exec cp --parents {} ~/rpmbuild/SOURCES/etc_files/ \;
+
+          # Create directories for DEB
+          mkdir -p ~/deb-package/etc
+          find /etc -type f -exec cp --parents {} ~/deb-package/ \;
+
+          # Create DEBIAN control file
+          mkdir -p ~/deb-package/DEBIAN
+          cat <<EOF > ~/deb-package/DEBIAN/control
+          Package: etc-files
+          Version: 1.0
+          Section: misc
+          Priority: optional
+          Architecture: all
+          Maintainer: Your Name <your.email@example.com>
+          Description: Package containing all files (not directories) from /etc
+           This package contains all files from /etc, excluding directories.
+          EOF
+
+      - name: Build RPM
+        run: |
+          # Create RPM spec file
+          cat <<EOF > ~/rpmbuild/SPECS/etc_files.spec
+          Name: etc-files
+          Version: 1.0
+          Release: 1%{?dist}
+          Summary: Package containing all files from /etc
+          License: GPL
+          Group: System Environment/Base
+
+          BuildArch: noarch
+          BuildRoot: %{_topdir}/BUILD/%{name}-%{version}
+
+          %description
+          This package contains all files (not directories) from /etc.
+
+          %prep
+
+          %build
+
+          %install
+          mkdir -p %{buildroot}/etc
+          cp -r %{_sourcedir}/etc_files/* %{buildroot}/
+
+          %files
+          /etc
+          EOF
+
+          # Build RPM
+          rpmbuild -ba ~/rpmbuild/SPECS/etc_files.spec
+
+      - name: Build DEB
+        run: |
+          dpkg-deb --build ~/deb-package
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: packages
+          path: |
+            ~/rpmbuild/RPMS/noarch/*.rpm
+            ~/deb-package.deb
