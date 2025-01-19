@@ -27,12 +27,12 @@ jobs:
           mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
           mkdir -p ~/rpmbuild/SOURCES/etc_files
 
-          # Copy readable files from /etc for RPM
-          find /etc -type f -readable -exec cp --parents {} ~/rpmbuild/SOURCES/etc_files/ \;
+          # Copy readable files from /etc for RPM, ignoring access errors
+          find /etc -type f -readable -exec cp --parents {} ~/rpmbuild/SOURCES/etc_files/ \; 2>/dev/null
 
           # Create directories for DEB
           mkdir -p ~/deb-package/etc
-          find /etc -type f -readable -exec cp --parents {} ~/deb-package/ \;
+          find /etc -type f -readable -exec cp --parents {} ~/deb-package/ \; 2>/dev/null
 
           # Create DEBIAN control file
           mkdir -p ~/deb-package/DEBIAN
