@@ -55,6 +55,7 @@ jobs:
 
           # Create RPM spec file
           cat <<EOF > ~/rpmbuild/SPECS/etc_files.spec
+          %define _strip :
           Name: etc-files
           Version: 1.0
           Release: 1%{?dist}
