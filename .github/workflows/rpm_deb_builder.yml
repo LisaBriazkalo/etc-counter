@@ -25,17 +25,17 @@ jobs:
         run: |
           # Create directories for RPM
           mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-          mkdir -p ~/rpmbuild/SOURCES/etc_files || true
+          mkdir -p ~/rpmbuild/SOURCES/etc_files
 
           # Copy files from /etc for RPM
-          find /etc -type f -exec cp --parents {} ~/rpmbuild/SOURCES/etc_files/ \; || true
+          find /etc -type f -exec cp --parents {} ~/rpmbuild/SOURCES/etc_files/ \;
 
           # Create directories for DEB
-          mkdir -p ~/deb-package/etc || true
-          find /etc -type f -exec cp --parents {} ~/deb-package/ \; || true
+          mkdir -p ~/deb-package/etc
+          find /etc -type f -exec cp --parents {} ~/deb-package/ \;
 
           # Create DEBIAN control file
-          mkdir -p ~/deb-package/DEBIAN || true
+          mkdir -p ~/deb-package/DEBIAN
           cat <<EOF > ~/deb-package/DEBIAN/control
           Package: etc-files
           Version: 1.0
@@ -70,7 +70,7 @@ jobs:
 
           %install
           mkdir -p %{buildroot}/etc
-          cp -r %{_sourcedir}/etc_files/* %{buildroot}/
+          cp -r %{_sourcedir}/etc_files/* %{buildroot}/etc/
 
           %files
           /etc
