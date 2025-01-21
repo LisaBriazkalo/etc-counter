@@ -6,17 +6,9 @@ RUN apt-get update && apt-get install -y \
     rpm \
     dpkg-dev \
     git \
-    bash
+    curl
 
-WORKDIR /usr/share/jenkins/ref
-
-COPY ./your-build-scripts /usr/share/jenkins/ref
-
-RUN /usr/local/bin/install-plugins.sh \
-    git \
-    pipeline \
-    blueocean
+RUN jenkins-plugin-cli --plugins "github-branch-source"
+USER jenkins
 
 EXPOSE 8080
-
-ENTRYPOINT ["/bin/tini", "--", "/usr/local/bin/jenkins.sh"]
