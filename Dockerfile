@@ -1,14 +1,11 @@
 FROM jenkins/jenkins:lts
-
 USER root
-RUN apt-get update && apt-get install -y \
-    build-essential \
+RUN apt-get update && apt-get install -y \ 
     rpm \
-    dpkg-dev \
+    dpkg-dev \ 
+    build-essential \
     git \
-    curl
-
-RUN jenkins-plugin-cli --plugins "github-branch-source"
+    curl \
+    sudo \
+    && apt-get clean
 USER jenkins
-
-EXPOSE 8080
