@@ -19,7 +19,6 @@ Summary: Package containing all files from /etc
 License: GPL
 Group: System Environment/Base
 
-BuildArch: noarch
 BuildRoot: %{_topdir}/BUILD/%{name}-%{version}
 
 %description
