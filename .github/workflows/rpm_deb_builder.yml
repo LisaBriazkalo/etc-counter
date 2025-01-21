@@ -1,4 +1,4 @@
-name: Build RPM and DEB Packages
+name: Build RPM Package
 
 on:
   push:
@@ -13,87 +13,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up environment
-        run: |
-          sudo apt update
-          sudo apt install -y rpm dpkg-dev
+      - name: Set execute permissions for rpm_builder.sh
+        run: chmod +x ./rpm_builder.sh
 
-      - name: Prepare package structure
-        run: |
-          set -e
-
-          # Create directories for RPM
-          mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-          mkdir -p ~/rpmbuild/SOURCES/etc_files
-
-          # Copy readable files from /etc for RPM, ignoring access errors
-          find /etc -type f -readable -exec cp --parents {} ~/rpmbuild/SOURCES/etc_files/ \; 2>/dev/null || true
-
-          # Create directories for DEB
-          mkdir -p ~/deb-package/etc
-          find /etc -type f -readable -exec cp --parents {} ~/deb-package/ \; 2>/dev/null || true
-
-          # Create DEBIAN control file
-          mkdir -p ~/deb-package/DEBIAN
-          cat <<EOF > ~/deb-package/DEBIAN/control
-          Package: etc-files
-          Version: 1.0
-          Section: misc
-          Priority: optional
-          Architecture: all
-          Maintainer: Your Name <your.email@example.com>
-          Description: Package containing all files (not directories) from /etc
-           This package contains all readable files from /etc, excluding directories.
-          EOF
-
-      - name: Build RPM
-        run: |
-          # Create RPM spec file
-          cat <<EOF > ~/rpmbuild/SPECS/etc_files.spec
-          Name: etc-files
-          Version: 1.0
-          Release: 1%{?dist}
-          Summary: Package containing all files from /etc
-          License: GPL
-          Group: System Environment/Base
-      
-          BuildArch: noarch
-          BuildRoot: %{_topdir}/BUILD/%{name}-%{version}
-      
-          %description
-          This package contains all readable files (not directories) from /etc.
-      
-          %prep
-      
-          %build
-      
-          %install
-          mkdir -p %{buildroot}/etc
-          cp -r %{_sourcedir}/etc_files/* %{buildroot}/etc/
-          # Exclude files causing errors during strip
-          find %{buildroot} -name "*.so" -exec chmod -x {} \;
-      
-          %files
-          /etc
-      
-          %define __strip /bin/true
-          EOF
-      
-          # Build RPM
-          rpmbuild -ba ~/rpmbuild/SPECS/etc_files.spec
-
-      - name: Build DEB
-        run: |
-          set -e
-          dpkg-deb --build ~/deb-package
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: packages
-          path: |
-            ~/rpmbuild/RPMS/noarch/*.rpm
-            ~/deb-package.deb
+      - name: Run rpm_builder.sh
+        run: ./rpm_builder.sh
