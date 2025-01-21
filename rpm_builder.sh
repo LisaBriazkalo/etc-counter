@@ -8,6 +8,9 @@ mkdir -p ~/rpmbuild/SOURCES/etc_files
 find /etc -type f -exec cp --parents {} ~/rpmbuild/SOURCES/etc_files/ \;
 
 cat > ~/rpmbuild/SPECS/etc_files.spec << 'EOF'
+%global __strip /bin/true
+%global __objdump /bin/true
+%define __brp_strip_none 1
 
 Name: etc-files
 Version: 1.0
@@ -28,7 +31,7 @@ This package contains all files (not directories) from /etc.
 
 %install
 mkdir -p %{buildroot}/etc
-cp -r %{_sourcedir}/etc_files/* %{buildroot}/
+cp -r %{_sourcedir}/etc_files/* %{buildroot}/etc/
 
 %files
 /etc
