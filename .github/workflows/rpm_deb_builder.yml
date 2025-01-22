@@ -22,15 +22,17 @@ jobs:
       - name: Run rpm_builder.sh
         run: ./rpm_builder.sh
 
-  build-deb:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
       - name: Set execute permissions for deb_builder.sh
         run: chmod +x ./deb_builder.sh
 
       - name: Run deb_builder.sh
         run: ./deb_builder.sh
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: packages
+          path: |
+            ~/rpmbuild/RPMS/
+            ~/rpmbuild/SRPMS/
+            /home/runner/*.deb
